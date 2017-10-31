@@ -1,0 +1,32 @@
+Height 		: 254
+Width 		: 556
+Pixel count	: 8131
+Total pixels	: 141224
+Bounding Box Height	: 204		Min_x	: 18	Max_x	: 221
+Bounding Box Width	: 462		Min_y	: 40	Max_y	: 501
+Bounding Box Area 	: 94248
+Feature 1      : Normalised area               : 0.0862724
+Feature 2      : Aspect Ratio                  : 2.26471
+Feature 3      : horizontal histogram          : 97
+Feature 4      : vertical histogram            : 112
+Feature 5a     : Centroid 1                    : 139.587 137.028
+Feature 5b     : Centroid 2                    : 339.637 88.0174
+Feature 5c     : Centroid angle                : 0.580087
+Feature 6      : tri_surface 1                 : 0.107607
+Feature 7      : tri_surface 2                 : 0.0843601
+Feature 8      : tri_surface 3                 : 0.0542456
+Feature 9      : six_fold 1                    : 16454.3
+Feature 10     : six_fold 2                    : 16870.7
+Feature 11     : six_fold 3                    : 12991.9
+Feature 12     : six_fold 4                    : 23044.1
+Feature 13     : six_fold 5                    : 12066.5
+Feature 14     : six_fold 6                    : 24194.5
+Feature 15     : left-right(x)                 : 0.420726
+Feature 16     : left-right(y)                 : 0.445672
+Feature 17     : right-left(x)                 : 0.420726
+Feature 18     : right-left(y)                 : 0.447471
+Feature 19     : top-bottom(x)                 : 0.428878
+Feature 20     : top-bottom(y)                 : 0.460278
+Feature 21     : bottom-top(x)                 : 0.432815
+Feature 22     : bottom-top(y)                 : 0.460278
+Feature 23     : edge_points                   : 1450

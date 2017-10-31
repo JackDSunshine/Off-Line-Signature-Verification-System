@@ -1,0 +1,228 @@
+
+#include <stdio.h>
+#include <iostream>
+#include <opencv2/opencv.hpp>
+#include <algorithm>
+#include <cmath>
+#include <utility>
+
+using namespace std;
+using namespace cv;
+
+#define pi (22/7)
+
+int size_x,size_y;
+Mat image,image_grey;
+float bound_height,bound_width;
+
+// Normalised Area Function including centroid  
+long double na(int my,int mmy,int ret)
+{
+	long double sum_x=0;
+	long double p_cnt=0;
+	int pixel_count=0;
+	int min_x=size_x,min_y=size_y,max_x=0,max_y=0;
+	
+	for(int x=0;x<=size_x;x++)
+	{
+		for(int y=my;y<=mmy;y++)
+		{
+			if(!image_grey.at<uchar>(x,y))
+		    {
+		    	pixel_count++;
+		        min_x=min(min_x,x);
+		        max_x=max(max_x,x);
+		        min_y=min(min_y,y);
+		        max_y=max(max_y,y);
+		        sum_x+=x;
+		        p_cnt++;
+		    }
+		}
+	  }
+	  
+	float bound_height=max_x-min_x+1;
+	float bound_width=max_y-min_y+1;
+	
+	long double normalised_area;
+	long double area=(bound_height)*(bound_width);
+	
+	normalised_area=pixel_count/area;
+	
+	long double centroid_x=sum_x/p_cnt;
+	long double area11=0,area12=0;
+	
+	area11=(centroid_x-min_x+1)*(max_y-min_y+1);
+	area12=(max_x-centroid_x)*(max_y-min_y+1);
+	
+	if(ret==0)
+    	return normalised_area;
+    if(ret==1)
+    	return area11;
+    	
+  	return area12;
+}
+
+
+
+int main( int argc, char** argv )
+{
+  	image = imread( argv[1], 1 );
+  	
+  	if( argc != 2 || !image.data )
+  	{
+      	printf( "No image data \n" );
+      	return -1;
+  	}
+  	
+  	cvtColor(image, image_grey, CV_RGB2GRAY);
+  	namedWindow( "Display Image", CV_WINDOW_AUTOSIZE );
+  	namedWindow( "Original Image", CV_WINDOW_AUTOSIZE );
+    
+  	imshow( "Original Image", image_grey );
+  	Size s = image_grey.size();
+  	size_x = s.height;
+  	size_y = s.width;
+  	int pixel_count=0;
+  	int min_x=size_x,min_y=size_y,max_x=0,max_y=0;
+  	
+  	for(int x=0;x<size_x;x++)
+  	{
+		for(int y=0;y<size_y;y++)
+		{
+		    image_grey.at<uchar>(x,y)=(image_grey.at<uchar>(x,y)<=125?0:255);
+		    
+		    if(!image_grey.at<uchar>(x,y))
+		    {
+		    	pixel_count++;
+		        min_x=min(min_x,x);
+		        max_x=max(max_x,x);
+		        min_y=min(min_y,y);
+		        max_y=max(max_y,y);
+		    }
+    	}
+  	}
+  	
+  	bound_height=max_x-min_x+1;
+  	bound_width=max_y-min_y+1;
+  	
+  	long double normalised_area;
+  	long double area=(bound_height)*(bound_width);
+  	
+  	cout<<"Height 		: "<<size_x<<"\n";
+  	cout<<"Width 		: "<<size_y<<"\n";
+  	cout<<"Pixel count	: "<<pixel_count<<"\n";
+  	cout<<"Total pixels	: "<<size_x * size_y<<"\n";
+  	
+  	cout<<"Bounding Box Height	: "<<bound_height<<"\t\tMin_x	: "<<min_x<<"\tMax_x	: "<<max_x<<"\n";
+  	cout<<"Bounding Box Width	: "<<bound_width<<"\t\tMin_y	: "<<min_y<<"\tMax_y	: "<<max_y<<"\n";
+  	cout<<"Bounding Box Area 	: "<<area<<"\n";
+  	
+  	normalised_area=pixel_count/area;  
+  	cout<<"Feature 1      : Normalised area               : "<<normalised_area<<"\n";
+  
+  	long double AR=bound_width/bound_height;
+  	cout<<"Feature 2      : Aspect Ratio                  : "<<AR<<"\n";
+  
+  
+  	int hor_histo=0;
+  	int ver_histo=0;
+  	int histo_row,histo_col;
+  	
+  	int sum_x1=0,sum_x2=0,sum_y1=0,sum_y2=0;
+  	int p_cnt1=0,p_cnt2=0;
+  
+  	for(int x=min_x;x<=max_x;x++)
+  	{
+    	int cnt=0;
+    	
+    	for(int y=min_y;y<=max_y;y++)
+    	{
+		    if(!image_grey.at<uchar>(x,y))
+		    {
+		        cnt++;
+		        if(y<(max_y-min_y)/2)
+		        {
+		                sum_x1+=x;
+		                sum_y1+=y;
+		                p_cnt1++;
+		        }
+		        
+		        else
+		        {
+		            sum_x2+=x;
+		            sum_y2+=y;
+		            p_cnt2++;
+		        }
+		    }
+    	}
+    
+    	if(hor_histo<cnt)
+    	{
+		    hor_histo=cnt;
+		    histo_row=x;
+		}
+  	}
+  
+  	for(int y=min_y;y<=max_y;y++)
+  	{
+		int cnt=0;
+
+		for(int x=min_x;x<=max_x;x++)
+		{
+		    if(!image_grey.at<uchar>(x,y))
+		    {    
+		        cnt++;
+		    }
+		}
+		if(ver_histo<cnt)
+		{
+		    ver_histo=cnt;
+		    histo_col=y;
+		}
+	}
+	
+  	cout<<"Feature 3      : horizontal histogram          : "<<histo_row<<"\n";
+  	cout<<"Feature 4      : vertical histogram            : "<<histo_col<<"\n";
+  
+  	long double centroid_x1,centroid_y1,centroid_x2,centroid_y2;
+  	centroid_x1=(long double)sum_x1/(long double)p_cnt1;
+  	centroid_y1=(long double)sum_y1/(long double)p_cnt1;
+  	centroid_x2=(long double)sum_x2/(long double)p_cnt2;
+  	centroid_y2=(long double)sum_y2/(long double)p_cnt2;
+  
+  
+  	long double hyp=sqrt(((centroid_x1-centroid_x2)*(centroid_x1-centroid_x2))+((centroid_y1-centroid_y2)*(centroid_y1-centroid_y2)));
+  	long double height=abs(centroid_x1-centroid_x2);
+  	long double c_angle=asin(height/hyp)/pi;  
+  
+  	c_angle+=(long double)0.5;
+  	cout<<"Feature 5a     : Centroid 1                    : "<<centroid_y1<<" "<<centroid_x1<<"\n";
+  	cout<<"Feature 5b     : Centroid 2                    : "<<centroid_y2<<" "<<centroid_x2<<"\n";
+  	cout<<"Feature 5c     : Centroid angle                : "<<c_angle<<"\n";
+
+  	long double tri_surface_1=na(min_y,min_y+bound_width/3,0);
+  	long double tri_surface_2=na(min_y+bound_width/3+1,min_y+(bound_width/3)*2,0);
+  	long double tri_surface_3=na(min_y+((bound_width/3)*2)+1,max_y,0);
+  	cout<<"Feature 6      : tri_surface 1                 : "<<tri_surface_1<<"\n";
+  	cout<<"Feature 7      : tri_surface 2                 : "<<tri_surface_2<<"\n";
+  	cout<<"Feature 8      : tri_surface 3                 : "<<tri_surface_3<<"\n";
+
+  	long double six_fold_1=na(min_y,min_y+bound_width/3,1);
+  	long double six_fold_2=na(min_y+bound_width/3+1,min_y+(bound_width/3)*2,2);
+  	long double six_fold_3=na(min_y+((bound_width/3)*2)+1,max_y,1);
+  	long double six_fold_4=na(min_y,min_y+bound_width/3,2);
+  	long double six_fold_5=na(min_y+bound_width/3+1,min_y+(bound_width/3)*2,1);
+  	long double six_fold_6=na(min_y+((bound_width/3)*2)+1,max_y,2);
+  	cout<<"Feature 9      : six_fold 1                    : "<<six_fold_1<<"\n";
+  	cout<<"Feature 10     : six_fold 2                    : "<<six_fold_2<<"\n";
+  	cout<<"Feature 11     : six_fold 3                    : "<<six_fold_3<<"\n";
+  	cout<<"Feature 12     : six_fold 4                    : "<<six_fold_4<<"\n";
+  	cout<<"Feature 13     : six_fold 5                    : "<<six_fold_5<<"\n";
+  	cout<<"Feature 14     : six_fold 6                    : "<<six_fold_6<<"\n";
+	
+  	imshow( "Display Image", image_grey );
+  	waitKey(0);
+
+  	return 0;
+}
+

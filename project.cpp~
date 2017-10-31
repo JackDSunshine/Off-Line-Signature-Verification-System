@@ -1,0 +1,108 @@
+#include <stdio.h>
+#include <iostream>
+#include <opencv2/opencv.hpp>
+#include <algorithm>
+#include <cmath>
+#include <utility>
+
+using namespace std;
+using namespace cv;
+
+#define pi (22/7)
+
+int main( int argc, char** argv )
+{
+	int size_x,size_y;
+	Mat image,image_grey;
+	float bound_height,bound_width;
+
+	image = imread( argv[1], 1 );
+  	
+  	if( argc != 2 || !image.data )
+  	{
+      	printf( "No image data \n" );
+      	return -1;
+  	}
+  	
+  	Size s = image_grey.size();
+  	size_x = s.height;
+  	size_y = s.width;
+  	int pixel_count=0;
+  	int min_x=size_x,min_y=size_y,max_x=0,max_y=0;
+  	
+	long double sum_x=0;
+	long double p_cnt=0;
+  	
+  	cvtColor(image, image_grey, CV_RGB2GRAY);
+  	namedWindow( "Display Image", CV_WINDOW_AUTOSIZE );
+  	namedWindow( "Original Image", CV_WINDOW_AUTOSIZE );
+    
+  	imshow( "Original Image", image_grey );
+  	Size s = image_grey.size();
+  	size_x = s.height;
+  	size_y = s.width;
+  	int pixel_count=0;
+  	int min_x=size_x,min_y=size_y,max_x=0,max_y=0;
+  	
+  	for(int x=0;x<size_x;x++)
+  	{
+		for(int y=0;y<size_y;y++)
+		{
+		    image_grey.at<uchar>(x,y)=(image_grey.at<uchar>(x,y)<=130 ? 0:255);
+		    
+		    if(!image_grey.at<uchar>(x,y))
+		    {
+		    	pixel_count++;
+		        min_x=min(min_x,x);
+		        max_x=max(max_x,x);
+		        min_y=min(min_y,y);
+		        max_y=max(max_y,y);
+		    }
+    	}
+  	}
+  	
+	for(int x=0;x<=size_x;x++)
+		{
+			for(int y=min_y;y<=max_y;y++)
+			{
+				if(!image_grey.at<uchar>(x,y))
+				{
+					pixel_count++;
+				    min_x=min(min_x,x);
+				    max_x=max(max_x,x);
+				    min_y=min(min_y,y);
+				    max_y=max(max_y,y);
+				    sum_x+=x;
+				    p_cnt++;
+				}
+			}
+		}
+		  
+	float bound_height=max_x-min_x+1;
+	float bound_width=max_y-min_y+1;
+	
+	long double normalised_area;
+	long double area=(bound_height)*(bound_width);
+	
+	normalised_area=pixel_count/area;
+	
+	cout<<"Height 		: "<<size_x<<"\n";
+  	cout<<"Width 		: "<<size_y<<"\n";
+  	cout<<"Pixel count	: "<<pixel_count<<"\n";
+  	cout<<"Total pixels	: "<<size_x * size_y<<"\n";
+  	
+  	cout<<"Bounding Box Height	: "<<bound_height<<"\t\tMin_x	: "<<min_x<<"\tMax_x	: "<<max_x<<"\n";
+  	cout<<"Bounding Box Width	: "<<bound_width<<"\t\tMin_y	: "<<min_y<<"\tMax_y	: "<<max_y<<"\n";
+  	cout<<"Bounding Box Area 	: "<<area<<"\n";
+  	
+  	normalised_area=pixel_count/area;  
+  	cout<<"Feature 1      : Normalised area               : "<<normalised_area<<"\n";
+  
+  	long double AR=bound_width/bound_height;
+  	cout<<"Feature 2      : Aspect Ratio                  : "<<AR<<"\n";
+  	imshow( "Display Image", image_grey );
+  	waitKey(0);
+
+  	return 0;
+
+}
